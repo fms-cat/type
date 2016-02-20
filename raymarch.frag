@@ -308,7 +308,7 @@ void shade() {
       }
     }
 
-    float edge = saturate( pow( length( normal - normalFunc( rayPos, 7E-3 * rayLen ) ) * 2.0, 2.0 ) );
+    float edge = saturate( pow( length( normal - normalFunc( rayPos, 4E-3 * rayLen ) ) * 2.0, 2.0 ) );
 
     if ( 0.5 < glitch.z ) {
       rayCol = vec4( mix(
@@ -367,39 +367,44 @@ void main() {
     t = 448.5 - exp( 896.0 - t * 2.0 ) * 0.5;
   }
 
-  vec4 glitchr = ( 320.0 < t ) ? vec4(
-    random( floor( t * 4.0 ) / 4.1 ).xy,
-    random( floor( t * 2.0 ) / 6.1 ).xy
-  ) : V.xxxx;
-  if ( glitchr.z < -0.6 ) {
-    t -= floor( mod( t, 0.5 ) * 8.0 ) / 8.0;
-    p *= 0.8;
-    glitch.w = 1.0;
-  } else if ( glitchr.z < -0.4 ) {
-    t = floor( t * 512.0 ) / 512.0;
-    glitch.z = 1.0;
-    p *= 1.2;
-  } else if ( glitchr.z < -0.2 ) {
-    t = t * 1.0 - floor( mod( t, 0.5 ) * 14.0 ) / 18.0;
-    glitch.y = 1.0;
-  }
+  if ( t < 0.0 ) {
+    gl_FragColor = vec4(
+      V.yyy * saturate( ( exp( -mod( time, 1.0 ) ) * 0.1 - length( p ) ) * 4E2 ),
+      1.0
+    );
+  } else {
+    vec4 glitchr = ( 320.0 < t ) ? vec4(
+      random( floor( t * 4.0 ) / 4.1 ).xy,
+      random( floor( t * 2.0 ) / 6.1 ).xy
+    ) : V.xxxx;
+    if ( glitchr.z < -0.6 ) {
+      t -= floor( mod( t, 0.5 ) * 8.0 ) / 8.0;
+      p *= 0.8;
+      glitch.w = 1.0;
+    } else if ( glitchr.z < -0.4 ) {
+      t = floor( t * 512.0 ) / 512.0;
+      glitch.z = 1.0;
+      p *= 1.2;
+    } else if ( glitchr.z < -0.2 ) {
+      t = t * 1.0 - floor( mod( t, 0.5 ) * 14.0 ) / 18.0;
+      glitch.y = 1.0;
+    }
 
-  if ( glitchr.z < -0.2 ) {
-    t -= 8.0 * max( 0.0, texture2D( randomTexture, floor( p.xy * vec2( 8.0, 16.0 ) + floor( t * 2.0 ) ) / 7.8 ).x - 0.7 );
-  }
+    if ( glitchr.z < -0.2 ) {
+      t -= 8.0 * max( 0.0, texture2D( randomTexture, floor( p.xy * vec2( 4.0, 16.0 ) + floor( t * 2.0 ) ) / 7.8 ).x - 0.7 );
+    }
 
-  kick = (
-    0.6 < glitchr.x
-    ? mod( t, 0.25 )
-    : mod( t + ( 1.5 < mod( t, 8.0 ) ? 0.5 : 0.0 ), 2.0 ) + ( abs( t - 63.75 ) < 0.25 ? 9E9 : 0.0 )
-  );
-  snare = (
-    glitchr.x < -0.6
-    ? mod( t, 0.25 )
-    : mod( t + 2.0, 4.0 ) + ( abs( t - 162.0 ) < 32.0 ? 9E9 : 0.0 )
-  );
+    kick = (
+      0.6 < glitchr.x
+      ? mod( t, 0.25 )
+      : mod( t + ( 1.5 < mod( t, 8.0 ) ? 0.5 : 0.0 ), 2.0 ) + ( abs( t - 63.75 ) < 0.25 ? 9E9 : 0.0 )
+    );
+    snare = (
+      glitchr.x < -0.6
+      ? mod( t, 0.25 )
+      : mod( t + 2.0, 4.0 ) + ( abs( t - 162.0 ) < 32.0 ? 9E9 : 0.0 )
+    );
 
-  if ( 0.0 < t ) {
     setCamera();
     initRay();
 

@@ -105,11 +105,11 @@ void main() {
       ret += sin(
         t * f
         + sin(
-          t * 2.0 * f
-        ) * exp( -click * 10.0 )
+          t * 3.0 * f
+        ) * exp( -click * 12.0 )
       )
       * 0.1
-      * exp( -click * 3.0 )
+      * exp( -click * 5.0 )
       * saturate( snare * kick );
     }
 

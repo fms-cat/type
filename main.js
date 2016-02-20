@@ -83,15 +83,15 @@ step( {
         'doxas',
         'gyabo',
         'MetroGirl',
+        'orange',
         'primitive',
+        'quite',
         'Radium Software',
         'Razor1911',
         'rgba',
         'RTX1911',
         'System K',
         'xplsv',
-        '00',
-        '01',
         '[ Type ]'
       ];
       for ( i = 0; i < 32; i ++ ) {
@@ -172,8 +172,8 @@ step( {
       }
     }
 
-    canvas.width = 1280 * 0.5;
-    canvas.height = 720 * 0.5;
+    canvas.width = 1920;
+    canvas.height = 1080;
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.bindFramebuffer( gl.FRAMEBUFFER, null );
 
@@ -218,7 +218,7 @@ step( {
 
       src.buffer = buffer;
       src.connect( audio.destination );
-      src.start( beginTime );
+      src.start( beginTime + 0.2 );
 
       if ( canvas.requestFullscreen ) {
         canvas.requestFullscreen();
