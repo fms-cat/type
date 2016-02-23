@@ -1,3 +1,9 @@
+if ( !confirm( 'proceed?' ) ) {
+  throw 'exit!';
+}
+
+// ------
+
 var seed;
 function xorshift() {
   seed = seed ^ ( seed << 13 ) || 1;
@@ -5,9 +11,6 @@ function xorshift() {
   seed = seed ^ ( seed << 5 );
   return seed / Math.pow( 2, 32 ) + .5;
 }
-
-var myAudio = new AudioContext();
-var mySrc = myAudio.createBufferSource();
 
 var myDistSize = 2048;
 var myDistSizeSq = myDistSize * myDistSize;
@@ -99,9 +102,9 @@ function myUniformTexture( a, b, c ) {
 
 // ------
 
+var tempArray = new Uint8Array( myDistSizeSq * 4 );
 var randomTexture = myCreateTexture();
 mySetTexture( randomTexture, myDistSize, myDistSize, ( function() {
-  var tempArray = new Uint8Array( myDistSizeSq * 4 );
   for ( i = 0; i < myDistSizeSq * 4; i ++ ) {
     tempArray[ i ] = xorshift() * 256;
   }
@@ -110,24 +113,38 @@ mySetTexture( randomTexture, myDistSize, myDistSize, ( function() {
 
 // ------
 
-var myBuffer = myAudio.createBuffer( 2, 7000000, 44100 );
-myUseProgram( myCreateProgram( 参 ) );
+if ( confirm( 'audio?' ) ) {
 
-for ( i = 0; i < 2; i ++ ) {
+  var myBufferL = new Float32Array( 7000000 );
+  var myBufferR = new Float32Array( 7000000 );
+  myUseProgram( myCreateProgram( 参 ) );
 
-  myGl.uniform1f( myFindLocation( 'i' ), i );
-  myUniformTexture( myFindLocation( 'randomTexture' ), randomTexture, 0 );
+  for ( i = 0; i < 2; i ++ ) {
 
-  myGl.drawArrays( myGl.TRIANGLE_STRIP, 0, 4 );
-  myGl.flush();
-  myGl.readPixels( 0, 0, myDistSize, myDistSize, myGl.RGBA, myGl.UNSIGNED_BYTE, tempArray );
+    myGl.uniform1f( myFindLocation( 'i' ), i );
+    myUniformTexture( myFindLocation( 'randomTexture' ), randomTexture, 0 );
 
-  for ( j = 0; j < myDistSizeSq; j ++ ) {
-    if ( i * myDistSizeSq + j < 7000000 ) {
-      myBuffer.getChannelData( 0 )[ i * myDistSizeSq + j ] = tempArray[ j * 4 ] / 128 - 1;
-      myBuffer.getChannelData( 1 )[ i * myDistSizeSq + j ] = tempArray[ j * 4 + 1 ] / 128 - 1;
+    myGl.drawArrays( myGl.TRIANGLE_STRIP, 0, 4 );
+    myGl.flush();
+    myGl.readPixels( 0, 0, myDistSize, myDistSize, myGl.RGBA, myGl.UNSIGNED_BYTE, tempArray );
+
+    for ( j = 0; j < myDistSizeSq; j ++ ) {
+      if ( i * myDistSizeSq + j < 7000000 ) {
+        myBufferL[ i * myDistSizeSq + j ] = tempArray[ j * 4 ] / 128 - 1;
+        myBufferR[ i * myDistSizeSq + j ] = tempArray[ j * 4 + 1 ] / 128 - 1;
+      }
     }
+
   }
+
+  arrayToWav(
+    [ myBufferL, myBufferR ],
+    { download: 'type.wav' }
+  );
+
+  myBufferL = null;
+  myBufferR = null;
+
 }
 
 // ------
@@ -219,11 +236,31 @@ myGl.viewport( 0, 0, C.width, C.height );
 myGl.bindFramebuffer( myGl.FRAMEBUFFER, null );
 myUseProgram( myCreateProgram( 壱 ) );
 
-var myBeginTime;
+var myPMode = false;
+var myFrame = prompt( 'from?', 0 );
+console.log( myFrame );
+if ( myFrame === 'p' ) {
+  myPMode = true;
+} else {
+  myFrame = parseInt( myFrame );
+  if ( isNaN( myFrame ) ) {
+    alert( 'nay' );
+    throw 'nay';
+  }
+}
+var myTime;
 
 function update() {
 
-  var myTime = ( myAudio.currentTime - myBeginTime ) * 175 / 60 - 8;
+  if ( myPMode ) {
+    myFrame = parseInt( prompt( 'which?', myFrame ) );
+    if ( isNaN( myFrame ) ) {
+      alert( 'nay' );
+      throw 'nay';
+    }
+  }
+
+  myTime = myFrame / 60 * 175 / 60 - 8;
 
   myGl.uniform1f( myFindLocation( 'u_time' ), myTime );
   myGl.uniform2fv( myFindLocation( 'u_resolution' ), [ C.width, C.height ] );
@@ -244,27 +281,30 @@ function update() {
   myGl.drawArrays( myGl.TRIANGLE_STRIP, 0, 4 );
   myGl.flush();
 
-  requestAnimationFrame( update );
+  if ( 456 < myTime ) {
+    alert( '🎉 it finally done 🎉' );
+  } else {
+    var myUrl = C.toDataURL();
+    var myDownloadLink = document.createElement( 'a' );
+    var myFileName = 'type' + ( '0000' + myFrame ).slice( -5 ) + '.png';
+    myDownloadLink.download = myFileName;
+    myDownloadLink.href = myUrl;
+    myDownloadLink.click();
+    myDownloadLink = null;
+    myUrl = '';
 
-}
-
-A.innerText = 'Click';
-A.onclick = function() {
-  myBeginTime = myAudio.currentTime + 1;
-
-  mySrc.buffer = myBuffer;
-  mySrc.connect( myAudio.destination );
-  mySrc.start( myBeginTime );
-
-  if ( C.requestFullscreen ) {
-    C.requestFullscreen();
-  } else if (C.msRequestFullscreen) {
-    C.msRequestFullscreen();
-  } else if (C.mozRequestFullScreen) {
-    C.mozRequestFullScreen();
-  } else if (C.webkitRequestFullscreen) {
-    C.webkitRequestFullscreen();
+    if ( !myPMode ) {
+      requestAnimationFrame( update );
+    }
   }
 
-  update();
+  myFrame ++;
+
+}
+update();
+
+if ( myPMode ) {
+  C.onclick = function() {
+    update();
+  };
 }

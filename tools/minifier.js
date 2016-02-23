@@ -85,7 +85,7 @@
   // ------
 
   ret = killComment( ret );
-  ret = ret.replace( /\n/g, '' );
+  // ret = ret.replace( /\n/g, '' );
   ret = killSpace( ret );
 
   let iReplacer = 0;
@@ -110,9 +110,9 @@
       break;
     }
   }
-  ret = ret.replace( new RegExp( 'var ([^;=]+);', 'g' ), '定義$1;' );
-  ret = ret.replace( new RegExp( 'var ', 'g' ), '' );
-  ret = ret.replace( new RegExp( '定義([^;=]+);', 'g' ), 'var $1;' );
+  // ret = ret.replace( new RegExp( 'var ([^;=]+);', 'g' ), '定義$1;' );
+  // ret = ret.replace( new RegExp( 'var ', 'g' ), '' );
+  // ret = ret.replace( new RegExp( '定義([^;=]+);', 'g' ), 'var $1;' );
 
 
 
