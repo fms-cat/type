@@ -8,8 +8,9 @@ WebGL Demo
 9,105 bytes  
 
 2nd Place @ TokyoDemoFest Combined PC Compo  
-[pouet]()  
-[youtube]()  
+[🍻🚨🚀 Play now! 🚀🚨🍻](http://fms-cat.github.io/type/)
+[🌵👾📼 Watch on YouTube 📼👾🌵](https://youtu.be/I4OJccraqR4)  
+[🔦🍖💖 Pouet prod 💖🍖🔦](http://www.pouet.net/prod.php?which=66963)  
 
 ---
 
